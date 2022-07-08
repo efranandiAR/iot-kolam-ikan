@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard | Kolam Depok</title>
+        <link rel="stylesheet" href="./css/stylesheet.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="javascript/api.js"></script>
+    </head>
+    <body>
+        <header>
+            <div class = "container">
+                <div class = "header-left">
+                    <p class = "logo">Kolam Depok</p>
+                </div>
+            </div>
+        </header>
+
+        <div class = "main">
+            <div class = "container">
+                <div class = "valueCard-wrapper">
+                    <p>Data Parameter</p>
+                        <div class = "valueCard suhu-color">
+                            <p>Suhu</p>
+                            <i class = "material-icons md-48">device_thermostat</i>
+                            <div class = "value_suhu"></div>
+                            <div class = "state_suhu"></div>
+                        </div>
+                        <div class = "valueCard ph-color">
+                            <p>pH</p>
+                            <i class = "material-icons md-48">water_drop</i>
+                            <div class = "value_ph"></div>
+                            <div class = "state_ph"></div>
+                        </div>
+                        <div class = "valueCard kekeruhan-color">
+                            <p>Kekeruhan</p>
+                            <i class="material-icons md-48">visibility</i>
+                            <div class = "value_kekeruhan">50</div>
+                            <div class = "state_kekeruhan"></div>
+                        </div>
+                        <div class = "valueCard ketinggianAir-color">
+                            <p>Ketinggian Air</p>
+                            <i class = "material-icons md-48">water</i>
+                            <div class = "value_ketinggianAir"></div>
+                            <div class = "state_ketinggianAir"></div>
+                        </div>
+                </div>
+                <div class = graph-wrapper>
+                    <p>Grafik Parameter</p>
+                    <div class = "container-graph">
+                        <iframe class = "graph" src="https://api.thingspeak.com/channels/1536579/charts/1?bgcolor=%23ffffff&color=%2364dd17&dynamic=true&update=2&results=20&title=pH&type=line&xaxis=Waktu&yaxis=pH&width=auto"></iframe>
+                    </div>
+                    <div class = "container-graph">
+                        <iframe class = "graph" src="https://api.thingspeak.com/channels/1536579/charts/2?bgcolor=%23ffffff&color=%2364dd17&dynamic=true&update=2&results=20&title=Suhu&type=line&xaxis=Waktu&yaxis=Celcius&width=auto"></iframe>
+                    </div>
+                    <div class = "container-graph">
+                        <iframe class = "graph" src="https://api.thingspeak.com/channels/1536579/charts/3?bgcolor=%23ffffff&color=%2364dd17&dynamic=true&update=2&results=20&title=Kekeruhan&type=line&xaxis=Waktu&yaxis=NTU&width=auto"></iframe>
+                    </div>
+                    <div class = "container-graph">
+                        <iframe class = "graph" src="https://api.thingspeak.com/channels/1536579/charts/4?bgcolor=%23ffffff&color=%2364dd17&dynamic=true&update=2&results=20&title=Tinggi Air&type=line&xaxis=Waktu&yaxis=>35cm&width=auto"></iframe>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Masukkan data -->
+        <script>
+            var phValue;
+            var suhuValue;
+            var kekeruhanValue;
+            var phStatus;
+            var suhuStatus;
+            var kekeruhanStatus;
+
+            $(document).ready(function () {
+            setInterval(function () {
+            $.getJSON('https://api.thingspeak.com/channels/1536579/feeds/last.json?', function(data) {
+                phValue = data.field1;
+                $(".value_ph").html((parseFloat(phValue)).toFixed(2));
+                if (phValue < 6.50) {
+                    $(".state_ph").html('Rendah');
+                    $(".ph-color").css('background-color', '#BFD200');
+                } else if(phValue > 8) {
+                    $(".state_ph").html('Tinggi');
+                    $(".ph-color").css('background-color', '#FF1654');
+                } else if (phValue >= 6.5 && phValue <= 8) {
+                    $(".state_ph").html('Normal');
+                    $(".ph-color").css('background-color', '#007F5F');
+                }
+            });
+
+            $.getJSON('https://api.thingspeak.com/channels/1536579/feeds/last.json?', function(data) {
+                suhuValue = data.field2;
+                $(".value_suhu").html((parseFloat(suhuValue)).toFixed(2) + '°C');
+                if (suhuValue < 25.00) {
+                    $(".state_suhu").html('Rendah');
+                    $(".suhu-color").css('background-color', '#BFD200');
+                } else if(suhuValue > 30.00) {
+                    $(".state_suhu").html('Tinggi');
+                    $(".suhu-color").css('background-color', '#FF1654');
+                } else if (suhuValue >= 25.0 && suhuValue <= 30.00) {
+                    $(".state_suhu").html('Normal');
+                    $(".suhu-color").css('background-color', '#007F5F');
+                }
+            });
+
+            $.getJSON('https://api.thingspeak.com/channels/1536579/feeds/last.json?', function(data) {
+                kekeruhanValue = data.field3;
+                $(".value_kekeruhan").html((parseFloat(kekeruhanValue)).toFixed(0) + ' NTU');
+                if(kekeruhanValue > 750.00) {
+                    $(".state_kekeruhan").html('Tinggi');
+                    $(".kekeruhan-color").css('background-color', '#FF1654');
+                } else if (kekeruhanValue <= 750.00) {
+                    $(".state_kekeruhan").html('Normal');
+                    $(".kekeruhan-color").css('background-color', '#007F5F');
+
+                }
+            });
+
+            $.getJSON('https://api.thingspeak.com/channels/1536579/feeds/last.json?', function(data) {
+                ketinggianAirValue = data.field4;
+                $(".value_ketinggianAir").html((parseFloat(ketinggianAirValue)));
+                if (ketinggianAirValue == 0) {
+                    $(".value_ketinggianAir").html('< 35cm');
+                    $(".state_ketinggianAir").html('Rendah');
+                    $(".ketinggianAir-color").css('background-color', '#BFD200');
+                } else if(ketinggianAirValue == 1) {
+                    $(".value_ketinggianAir").html('> 35cm');
+                    $(".state_ketinggianAir").html('Normal');
+                    $(".ketinggianAir-color").css('background-color', '#007F5F');
+                }
+            });
+            }, 10000);
+            }); 
+        </script>  
+    </body>
+</html>
+
